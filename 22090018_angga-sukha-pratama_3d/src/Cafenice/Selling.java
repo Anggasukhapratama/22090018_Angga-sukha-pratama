@@ -24,6 +24,10 @@ import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Writer;
+import com.google.zxing.qrcode.QRCodeWriter;
+
 /**
  *
  * @author ASUS
@@ -313,57 +317,38 @@ private Connection connection;
     }//GEN-LAST:event_txtsellerActionPerformed
 
     private void btnbarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnbarcodeActionPerformed
-    
-    int selectedRow = tbltagihan.getSelectedRow();
+   int selectedRow = tbltagihan.getSelectedRow();
     if (selectedRow != -1) {
-        int id = (int) tbltagihan.getValueAt(selectedRow, 0); 
+        int id = (int) tbltagihan.getValueAt(selectedRow, 0);
         String nama = (String) tbltagihan.getValueAt(selectedRow, 1);
-        String seller = (String) tbltagihan.getValueAt(selectedRow, 4); 
-        double harga = (double) tbltagihan.getValueAt(selectedRow, 2); 
-        int quantity = (int) tbltagihan.getValueAt(selectedRow, 3); 
-        double total = (double) tbltagihan.getValueAt(selectedRow, 6); 
-        String tanggal = (String) tbltagihan.getValueAt(selectedRow, 5); 
+        String seller = (String) tbltagihan.getValueAt(selectedRow, 4);
+        double harga = (double) tbltagihan.getValueAt(selectedRow, 2);
+        int quantity = (int) tbltagihan.getValueAt(selectedRow, 3);
+        double total = (double) tbltagihan.getValueAt(selectedRow, 6);
+        String tanggal = (String) tbltagihan.getValueAt(selectedRow, 5);
 
-        try {
-            String sql = "SELECT harga, quantity, total, tanggal FROM tbltagihan WHERE id = ?";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setInt(1, id);
-                ResultSet resultSet = statement.executeQuery();
-
-                if (resultSet.next()) {
-                    generateBarcode(id, nama, seller, harga, quantity, total, tanggal);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Pilih baris tagihan terlebih dahulu", "Peringatan", JOptionPane.WARNING_MESSAGE);
-                }
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error fetching data from the database", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        generateQRCode(id, nama, seller, harga, quantity, total, tanggal);
     } else {
-        JOptionPane.showMessageDialog(this, "Pilih baris item terlebih dahulu", "Peringatan", JOptionPane.WARNING_MESSAGE);
-    }
-    }
-private void generateBarcode(int id, String nama, String seller, double harga, int quantity, double total, String tanggal) {
-  try {
-       
+        JOptionPane.showMessageDialog(this, "Pilih baris tagihan terlebih dahulu", "Peringatan", JOptionPane.WARNING_MESSAGE);
+    }  
+      }
+private void generateQRCode(int id, String nama, String seller, double harga, int quantity, double total, String tanggal) {
+    try {
         String content = id + "_" + nama + "_" + seller + "_" + harga + "_" + quantity + "_" + total + "_" + tanggal;
 
-        //disini saya menggunakan kode 128 yang diimport langsung jar dari github zxing
-        BarcodeFormat barcodeFormat = BarcodeFormat.CODE_128;
-        Writer codeWriter = new Code128Writer();
-        BitMatrix bitMatrix = codeWriter.encode(content, barcodeFormat, 300, 100);
+        BarcodeFormat barcodeFormat = BarcodeFormat.QR_CODE;
+        Writer codeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = codeWriter.encode(content, barcodeFormat, 300, 300);
 
-        
         long timestamp = System.currentTimeMillis();
-        String fileName = "D:" + File.separator + "Barcode" + File.separator + "barcode_" + timestamp + ".png";
+        String fileName = "D:" + File.separator + "Barcode" + File.separator + "qrcode_" + timestamp + ".png";
         Path path = FileSystems.getDefault().getPath(fileName);
         MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
-        JOptionPane.showMessageDialog(this, "Barcode generated successfully and saved to: " + fileName, "Success", JOptionPane.INFORMATION_MESSAGE);
-        
+
+        JOptionPane.showMessageDialog(this, "QR Code generated successfully and saved to: " + fileName, "Success", JOptionPane.INFORMATION_MESSAGE);
     } catch (Exception e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error generating barcode", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error generating QR Code", "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnbarcodeActionPerformed
 

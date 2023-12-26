@@ -36,12 +36,20 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author ASUS
  */
+
+
 public class Bill extends javax.swing.JFrame {
+    
+    private CameraQr cameraFrame;
+    
       DefaultTableModel tableModel = new DefaultTableModel(
           new Object[][]{},
-           new String[]{"No", "Nama", "Harga", "Quantity", "Seller", "Tanggal", "Total"}                 
+           new String[]{"No", "Nama", "Harga", "Quantity", "Seller", "Tanggal", "Total"} 
+              
     );
-
+         public void setCameraFrame(CameraQr cameraFrame) {
+        this.cameraFrame = cameraFrame;
+         }
     /**
      * Creates new form Bill
      */
@@ -50,6 +58,8 @@ public class Bill extends javax.swing.JFrame {
          tbltagihan.setModel(tableModel);
          loadDataFromFile();
          
+          cameraFrame = new CameraQr();
+    cameraFrame.setBillFrame(this);
     }
 
     /**
@@ -75,6 +85,7 @@ public class Bill extends javax.swing.JFrame {
         Sellingto = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        btnscankamera = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -138,7 +149,7 @@ public class Bill extends javax.swing.JFrame {
                 txtalatgeneratescanActionPerformed(evt);
             }
         });
-        jPanel1.add(txtalatgeneratescan, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 266, 32));
+        jPanel1.add(txtalatgeneratescan, new org.netbeans.lib.awtextra.AbsoluteConstraints(456, 10, 200, 32));
 
         txthslprint.setColumns(20);
         txthslprint.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
@@ -185,6 +196,14 @@ public class Bill extends javax.swing.JFrame {
             }
         });
         jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, -1, -1));
+
+        btnscankamera.setText("Scan Kamera");
+        btnscankamera.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnscankameraActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnscankamera, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 10, 210, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -300,6 +319,11 @@ public class Bill extends javax.swing.JFrame {
     this.dispose();
     }//GEN-LAST:event_jLabel3MouseClicked
 
+    private void btnscankameraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnscankameraActionPerformed
+cameraFrame.setVisible(true);  
+                      
+    }//GEN-LAST:event_btnscankameraActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -340,6 +364,7 @@ public class Bill extends javax.swing.JFrame {
     private javax.swing.JButton btngenerate;
     private javax.swing.JButton btnhapus;
     private javax.swing.JButton btnprint;
+    private javax.swing.JButton btnscankamera;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -374,10 +399,10 @@ public class Bill extends javax.swing.JFrame {
     }
 
     private void printReceipt() {
-     StringBuilder receipt = new StringBuilder();
-    receipt.append("============ CAFENICE RECEIPT ============\n\n");
-    receipt.append(String.format("%-5s %-20s %-10s %-10s %-15s %-15s %-10s\n",
-            "No", "Nama", "Harga", "Quantity", "Seller", "Tanggal", "Total"));
+       StringBuilder receipt = new StringBuilder();
+       receipt.append("============ CAFENICE RECEIPT ============\n\n");
+       receipt.append(String.format("%-5s %-20s %-10s %-10s %-15s %-15s %-10s\n",
+             "No", "Nama", "Harga", "Quantity", "Seller", "Tanggal", "Total"));
 
     for (int i = 0; i < tableModel.getRowCount(); i++) {
         Object[] rowData = new Object[tableModel.getColumnCount()];
@@ -460,6 +485,40 @@ public class Bill extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Tidak dapat membaca barcode: " + ex.getMessage());
             }
         }
+        
     }
 
+
+    void handleScannedResult(String result) {
+       try {
+            String[] components = result.split("_");
+
+            if (components.length == 7) {
+                String nama = components[1];
+                double harga = Double.parseDouble(components[3]);
+                int quantity = Integer.parseInt(components[4]);
+                String seller = components[2];
+                String tanggal = components[6];
+                double total = Double.parseDouble(components[5]);
+
+                Object[] rowData = {
+                    currentID++,
+                    nama,
+                    harga,
+                    quantity,
+                    seller,
+                    tanggal,
+                    total
+                };
+
+                tableModel.addRow(rowData);
+                saveDataToFile();
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid barcode format.");
+            }
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error processing scanned result: " + ex.getMessage());
+        }
+    }
     }
