@@ -1,0 +1,9 @@
+===== CAFENICE RECEIPT =====
+
+No    Nama                 Harga      Quantity   Seller          Tanggal         Total     
+1     Canery               12000.0    2          bang2           2023-12-24      24000.0   
+2     moccacino            30000.0    2          somat           2023-12-24      60000.0   
+1     Canery               12000.0    2          bang2           2023-12-24      24000.0   
+2     moccacino            30000.0    6          pak kris        2023-12-25      180000.0  
+
+Total: 288000.0
